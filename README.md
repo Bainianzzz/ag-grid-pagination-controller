@@ -1,5 +1,15 @@
-# Vue 3 + TypeScript + Vite
+# ag-grid翻页器demo
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+翻页器接收2个参数，绑定1个数组：
 
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+- allData：后端返回的所有数据
+- pageSize：页面大小
+- v-model绑定表格中所展示的数据
+
+效果展示：
+点击下箭头或者其左侧文本都可以切换pageSize
+
+![翻页器效果](images/demonstration.png)
+![翻页器效果_2](images/demonstration_2.png)
+
+> ps:目前使用v-model绑定表格中所展示的数组，通过修改该数组实现翻页逻辑。如果后端不是一次性返回所有数据，翻页时需要重新进行http请求或者其他操作，可以监听自定义事件prevPage和nextPage，处理翻页逻辑。

@@ -16,7 +16,7 @@ import { Data } from "@/fakedata/data";
 import { ref } from "vue";
 import PagingTab from "@/components/PagingTab.vue";
 
-const rowData = ref(Data);
+const rowData = ref([]);
 
 // Column Definitions: Defines the columns to be displayed.
 const colDefs = ref([

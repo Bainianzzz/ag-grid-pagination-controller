@@ -70,6 +70,10 @@ const props = defineProps<{
   pageSize: number;
 }>();
 const rowData = defineModel<typeof props.allData>();
+const emit = defineEmits<{
+  (e: "prevPage"): void;
+  (e: "nextPage"): void;
+}>();
 const totalItems = ref(props.allData.length);
 const pageSize = ref(props.pageSize || 10);
 const startItem = ref(1);
@@ -94,6 +98,7 @@ function handleNextPage() {
     }
     rowData.value = props.allData.slice(startItem.value - 1, endItem.value - 1);
   }
+  emit("nextPage")
 }
 
 function handlePrevPage() {
@@ -106,6 +111,7 @@ function handlePrevPage() {
     endItem.value = startItem.value + pageSize.value;
   }
   rowData.value = props.allData.slice(startItem.value - 1, endItem.value - 1);
+  emit("prevPage");
 }
 
 function handlePageSizeChange(newPageSize: number) {
