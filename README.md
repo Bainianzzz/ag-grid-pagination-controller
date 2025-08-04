@@ -1,5 +1,7 @@
 # ag-grid翻页器demo
 
+[翻页器组件代码](src/components/PagingTab.vue)
+
 翻页器接收2个参数，绑定1个数组：
 
 - allData：后端返回的所有数据
