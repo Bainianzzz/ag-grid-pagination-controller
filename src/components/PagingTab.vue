@@ -1,9 +1,9 @@
 <template>
   <div class="flex p-2 pl-3 pb-1 m-3.5 border rounded tab-shadow w-fit">
-    <div class="text-sm mr-1">
+    <div class="text-sm mr-1 select-none">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <span class="mx-2">
+          <span class="mx-1.5 cursor-pointer hover:text-gray-500">
             {{ startItem }}-{{ endItem - 1 }}
             <ChevronDownIcon class="w-4 h-4 inline" />
           </span>
@@ -12,41 +12,38 @@
           <DropdownMenuLabel>Page size</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuCheckboxItem
-            @select="handlePageSizeChange(10)"
-            :disabled="pageSize === 10"
+            v-for="page in pageSize"
+            :key="page"
+            @select="handlePageSizeChange(page)"
+            :disabled="curPageSize === page"
           >
-            10
-          </DropdownMenuCheckboxItem>
-          <DropdownMenuCheckboxItem
-            @select="handlePageSizeChange(20)"
-            :disabled="pageSize === 20"
-            v-if="totalItems > 20"
-          >
-            20
-          </DropdownMenuCheckboxItem>
-          <DropdownMenuCheckboxItem
-            @select="handlePageSizeChange(50)"
-            :disabled="pageSize === 50"
-            v-if="totalItems > 50"
-          >
-            50
-          </DropdownMenuCheckboxItem>
-          <DropdownMenuCheckboxItem
-            @select="handlePageSizeChange(100)"
-            :disabled="pageSize === 100"
-            v-if="totalItems > 100"
-          >
-            100
+            {{ page }}
           </DropdownMenuCheckboxItem>
         </DropdownMenuContent>
       </DropdownMenu>
       of {{ totalItems }}
     </div>
-    <div class="mx-1">
-      <button @click="handlePrevPage" class="mr-1">
+    <div class="mx-2">
+      <button
+        @click="handlePrevPage"
+        class="mr-1.5 hover:text-gray-500"
+        :class="{
+          'text-gray-300 cursor-not-allowed': startItem <= 1,
+          'cursor-pointer': startItem > 1,
+        }"
+        :disabled="startItem <= 1"
+      >
         <ChevronLeft class="w-4 h-4" />
       </button>
-      <button @click="handleNextPage">
+      <button
+        @click="handleNextPage"
+        class="hover:text-gray-500"
+        :class="{
+          'text-gray-300 cursor-not-allowed': endItem > totalItems,
+          'cursor-pointer': endItem <= totalItems,
+        }"
+        :disabled="endItem > totalItems"
+      >
         <ChevronRight class="w-4 h-4" />
       </button>
     </div>
@@ -67,7 +64,7 @@ import { onMounted, ref } from "vue";
 
 const props = defineProps<{
   allData: any;
-  pageSize: number;
+  pageSize: number[];
 }>();
 const rowData = defineModel<typeof props.allData>();
 const emit = defineEmits<{
@@ -75,20 +72,20 @@ const emit = defineEmits<{
   (e: "nextPage"): void;
 }>();
 const totalItems = ref(props.allData.length);
-const pageSize = ref(props.pageSize || 10);
+const curPageSize = ref(props.pageSize[0] || 10);
 const startItem = ref(1);
-const endItem = ref(startItem.value + pageSize.value);
+const endItem = ref(startItem.value + curPageSize.value);
 
 onMounted(() => {
   rowData.value = props.allData.slice(startItem.value - 1, endItem.value - 1);
 });
 
 function handleNextPage() {
-  const newStartItem = startItem.value + pageSize.value;
+  const newStartItem = startItem.value + curPageSize.value;
   if (newStartItem > totalItems.value) {
     return;
   } else {
-    const newEndItem = newStartItem + pageSize.value;
+    const newEndItem = newStartItem + curPageSize.value;
     if (newEndItem > totalItems.value) {
       startItem.value = newStartItem;
       endItem.value = totalItems.value + 1;
@@ -98,28 +95,28 @@ function handleNextPage() {
     }
     rowData.value = props.allData.slice(startItem.value - 1, endItem.value - 1);
   }
-  emit("nextPage")
+  emit("nextPage");
 }
 
 function handlePrevPage() {
-  const newStartItem = startItem.value - pageSize.value;
+  const newStartItem = startItem.value - curPageSize.value;
   if (newStartItem < 0) {
     startItem.value = 1;
-    endItem.value = startItem.value + pageSize.value;
+    endItem.value = startItem.value + curPageSize.value;
   } else {
     startItem.value = newStartItem;
-    endItem.value = startItem.value + pageSize.value;
+    endItem.value = startItem.value + curPageSize.value;
   }
   rowData.value = props.allData.slice(startItem.value - 1, endItem.value - 1);
   emit("prevPage");
 }
 
 function handlePageSizeChange(newPageSize: number) {
-  pageSize.value = newPageSize;
-  if (startItem.value + pageSize.value > totalItems.value) {
+  curPageSize.value = newPageSize;
+  if (startItem.value + curPageSize.value > totalItems.value) {
     endItem.value = totalItems.value + 1;
   } else {
-    endItem.value = startItem.value + pageSize.value;
+    endItem.value = startItem.value + curPageSize.value;
   }
   rowData.value = props.allData.slice(startItem.value - 1, endItem.value - 1);
 }
