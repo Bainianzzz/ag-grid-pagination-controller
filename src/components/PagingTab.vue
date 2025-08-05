@@ -63,7 +63,7 @@ import { ChevronLeft, ChevronRight, ChevronDownIcon } from "lucide-vue-next";
 import { onMounted, ref } from "vue";
 
 const props = defineProps<{
-  allData: any;
+  allData: unknown[];
   pageSize: number[];
 }>();
 const rowData = defineModel<typeof props.allData>();
@@ -71,16 +71,16 @@ const emit = defineEmits<{
   (e: "prevPage"): void;
   (e: "nextPage"): void;
 }>();
-const totalItems = ref(props.allData.length);
-const curPageSize = ref(props.pageSize[0] || 10);
-const startItem = ref(1);
-const endItem = ref(startItem.value + curPageSize.value);
+const totalItems = ref<number>(props.allData.length);
+const curPageSize = ref<number>(props.pageSize[0] || 10);
+const startItem = ref<number>(1);
+const endItem = ref<number>(startItem.value + curPageSize.value);
 
 onMounted(() => {
   rowData.value = props.allData.slice(startItem.value - 1, endItem.value - 1);
 });
 
-function handleNextPage() {
+function handleNextPage(): void {
   const newStartItem = startItem.value + curPageSize.value;
   if (newStartItem > totalItems.value) {
     return;
@@ -98,7 +98,7 @@ function handleNextPage() {
   emit("nextPage");
 }
 
-function handlePrevPage() {
+function handlePrevPage(): void {
   const newStartItem = startItem.value - curPageSize.value;
   if (newStartItem < 0) {
     startItem.value = 1;
@@ -111,10 +111,15 @@ function handlePrevPage() {
   emit("prevPage");
 }
 
-function handlePageSizeChange(newPageSize: number) {
+function handlePageSizeChange(newPageSize: number): void {
   curPageSize.value = newPageSize;
   if (startItem.value + curPageSize.value > totalItems.value) {
     endItem.value = totalItems.value + 1;
+    if (curPageSize.value > totalItems.value) {
+      startItem.value = 1;
+    } else {
+      startItem.value = totalItems.value - curPageSize.value + 1;
+    }
   } else {
     endItem.value = startItem.value + curPageSize.value;
   }
